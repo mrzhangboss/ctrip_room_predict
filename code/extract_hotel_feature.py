@@ -119,9 +119,9 @@ train_df['price_real'] = train_df['price_deduct'] + train_df['returnvalue']
 
 sample = extract_value_describe_feature('hotelid', 'price_deduct', train_df, sample, use_describe)
 
-sample = extract_value_describe_feature('hotelid', 'price_real', train_df, sample, ['max', 'mean'])
+sample = extract_value_describe_feature('hotelid', 'price_real', train_df, sample, ['max', 'mean', 'std'])
 
-sample = extract_value_describe_feature('hotelid', 'returnvalue', train_df, sample, ['max'])
+sample = extract_value_describe_feature('hotelid', 'returnvalue', train_df, sample, ['max', 'mean', '75%'])
 
 
 # ### 房间的面积统计特征
@@ -200,7 +200,7 @@ train_df[basic_minprice_diff_name] = train_df['price_deduct'] - train_df['basic_
 
 # In[ ]:
 
-price_desr = ['mean', 'max']
+price_desr = ['mean', 'max', 'min']
 
 
 # In[17]:
@@ -212,7 +212,7 @@ sample = extract_value_describe_feature('hotelid', basic_minprice_diff_name, tra
 
 # In[18]:
 
-get_corr(train_df, sample, 'hotelid').tail(24)
+# get_corr(train_df, sample, 'hotelid').tail(24)
 
 
 # ## 历史价格与现在差价统计特征

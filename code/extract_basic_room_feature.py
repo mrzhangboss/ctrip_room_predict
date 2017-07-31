@@ -113,9 +113,9 @@ train_df['price_real'] = train_df['price_deduct'] + train_df['returnvalue']
 
 sample = extract_value_describe_feature('basicroomid', 'price_deduct', train_df, sample, use_describe)
 
-sample = extract_value_describe_feature('basicroomid', 'price_real', train_df, sample, ['max', 'mean'])
+sample = extract_value_describe_feature('basicroomid', 'price_real', train_df, sample, ['max', 'mean', 'min', '75%'])
 
-sample = extract_value_describe_feature('basicroomid', 'returnvalue', train_df, sample,['max'] )
+sample = extract_value_describe_feature('basicroomid', 'returnvalue', train_df, sample,['max', 'min', '75%'] )
 
 
 # ## 子房型的统计特征 
@@ -136,7 +136,7 @@ sample = extract_value_describe_feature('basicroomid', 'room_30days_ordnumratio'
 
 sample = extract_value_describe_feature('basicroomid', 'room_30days_realratio',
                                         train_df, sample,
-                                        ['min', '25%', '75%', 'mean'])
+                                        ['min', '25%', '75%', 'mean', 'max'])
 
 
 # In[19]:
@@ -148,7 +148,7 @@ sample = extract_value_describe_feature('basicroomid', 'room_30days_realratio',
 
 # In[20]:
 
-price_use_describe = ['max', 'std', 'mean']
+price_use_describe = ['max', 'std', 'mean', 'min']
 
 
 # In[21]:
