@@ -259,7 +259,7 @@ sample = extract_lastord_is_nan(hotel_lastord, sample, 'hotelid', 'hotelid_lasto
 
 # In[38]:
 
-sample = extract_is_lastord(hotel_lastord, sample, 'hotelid', 'hotelid_lastord')
+# sample = extract_is_lastord(hotel_lastord, sample, 'hotelid', 'hotelid_lastord')
 
 
 # In[39]:

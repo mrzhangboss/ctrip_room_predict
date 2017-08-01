@@ -281,7 +281,7 @@ sample = extract_lastord_is_nan(basic_feature, sample, 'basicroomid', 'basicroom
 
 # In[42]:
 
-sample = extract_is_lastord(basic_feature, sample, 'basicroomid', 'basicroomid_lastord')
+# sample = extract_is_lastord(basic_feature, sample, 'basicroomid', 'basicroomid_lastord')
 
 
 # In[43]:
