@@ -99,23 +99,61 @@ sample = extract_feature_count('basicroomid', 'roomid', train_df, sample)
 
 # ### 价格
 
+# In[12]:
+
+use_describe = ['max', 'min', 'median', 'mean', 'std', 'nunique']
+
+
 # In[13]:
-
-use_describe = ['max', 'min', '75%', 'mean', 'std']
-
-
-# In[14]:
 
 train_df['price_real'] = train_df['price_deduct'] + train_df['returnvalue']
 
 
-# In[15]:
+# In[14]:
 
 sample = extract_value_describe_feature('basicroomid', 'price_deduct', train_df, sample, use_describe)
 
-sample = extract_value_describe_feature('basicroomid', 'price_real', train_df, sample, ['max', 'mean', 'min', '75%'])
+sample = extract_value_describe_feature('basicroomid', 'price_real', train_df, sample, ['max', 'mean', 'min', 'median'])
 
-sample = extract_value_describe_feature('basicroomid', 'returnvalue', train_df, sample,['max', 'min', '75%'] )
+sample = extract_value_describe_feature('basicroomid', 'returnvalue', train_df, sample,['max', 'min', 'median'] )
+
+
+# ### 价格排序
+
+# In[28]:
+
+def df_min_orderid(df):
+    add = pd.DataFrame(df.groupby(["orderid"]).price_deduct.min()).reset_index()
+    add.columns = ["orderid", "orderid_price_deduct_min"]
+    df = df.merge(add, on=["orderid"], how="left")
+    df = press_date(df, ['orderid_price_deduct_min'])
+    return df
+
+
+# In[54]:
+
+def df_rank_mean(df):
+    add = pd.DataFrame(df.groupby(["basicroomid"]).orderid_price_deduct_min_rank.mean()).reset_index()
+    add.columns = ["basicroomid","orderid_price_deduct_min_rank_mean"]
+    df = df.merge(add, on=["basicroomid"], how="left")
+    df = press_date(df, ['orderid_price_deduct_min_rank_mean'])
+    return df
+
+
+# In[61]:
+
+# train_df = df_min_orderid(df)
+
+# train_df["orderid_price_deduct_min_rank"] = train_df['orderid_price_deduct_min'].groupby(train_df['orderid']).rank()
+
+# train_df["orderid_price_deduct_min_rank"]
+
+# train_df = df_rank_mean(train_df)
+
+
+# In[23]:
+
+# sample['basicroomid__price_deduct_min_rank'] = sample.basicroomid__price_deduct_min.rank()
 
 
 # ## 子房型的统计特征 
@@ -127,16 +165,16 @@ room_cols = ['room_30days_ordnumratio', 'room_30days_realratio']
 
 # In[17]:
 
-sample = extract_value_describe_feature('basicroomid', 'room_30days_ordnumratio', train_df, sample, [
-    'max', 'min', '25%', '50%', '75%', 'std', 'mean'
-])
+sample = extract_value_describe_feature(
+    'basicroomid', 'room_30days_ordnumratio', train_df, sample,
+    ['max', 'min', 'median', 'mean', 'std', 'nunique'])
 
 
 # In[18]:
 
 sample = extract_value_describe_feature('basicroomid', 'room_30days_realratio',
                                         train_df, sample,
-                                        ['min', '25%', '75%', 'mean', 'max'])
+                                        ['max', 'min', 'median', 'mean', 'std', 'nunique'])
 
 
 # In[19]:

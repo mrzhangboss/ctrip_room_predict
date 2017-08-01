@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[19]:
+# In[1]:
 
 import sys
 from datetime import datetime
@@ -16,12 +16,12 @@ import scipy as sp
 from utils import *
 
 
-# In[20]:
+# In[2]:
 
 # sys.argv[1] = 'test'
 
 
-# In[21]:
+# In[3]:
 
 dir_arg = sys.argv[1]
 if dir_arg == '-f':
@@ -30,7 +30,7 @@ else:
     file_dir = join('..', 'dataset',  dir_arg)
 
 
-# In[22]:
+# In[4]:
 
 train_df = pd.read_pickle(join(file_dir, 'base_feauture.pkl'))
 
@@ -43,7 +43,7 @@ uid_shape, hotelid_shape, basicroomid_shape, roomid_shape = print_shape(
     train_df, ['uid', 'hotelid', 'basicroomid', 'roomid'])
 
 
-# In[23]:
+# In[5]:
 
 feature_path = join(file_dir, 'hotel_feature.pkl')
 print(datetime.now(), 'begin', feature_path)
@@ -51,52 +51,52 @@ print(datetime.now(), 'begin', feature_path)
 
 # ## 添加基本特征
 
-# In[24]:
+# In[6]:
 
 sample = add_column(train_df, sample, 'hotelid', 'star')
 
 
 # ## 上下级关联统计特征
 
-# In[25]:
+# In[7]:
 
 for f in ['basicroomid', 'roomid']:
     print(datetime.now(), 'begin hotel', f, 'count')
     sample = extract_feature_count('hotelid', f, train_df, sample)
 
 
-# In[26]:
+# In[8]:
 
 for i in range(8):
     f = 'roomservice_%d' % (i+1)
     sample = extract_feature_count('hotelid', f, train_df, sample)
 
 
-# In[27]:
+# In[9]:
 
 for i in range(1, 4):
     f = 'roomtag_%d' % (i+1)
     sample = extract_feature_count('hotelid', f, train_df, sample)
 
 
-# In[28]:
+# In[10]:
 
 # get_corr(train_df, sample, 'hotelid')
 
 
 # ### 删除无历史记录却有历史返现值的记录值(默认值为200）
 
-# In[29]:
+# In[11]:
 
 lastord_cols = [x for x in train_df.columns if x.endswith('lastord')]
 
 
-# In[30]:
+# In[12]:
 
 train_df.loc[train_df.orderdate_lastord.isnull(), 'return_lastord'] = np.nan
 
 
-# In[31]:
+# In[13]:
 
 train_df.price_deduct.describe()
 
@@ -105,54 +105,54 @@ train_df.price_deduct.describe()
 
 # ## 显示的最终价格和原价格的特征 
 
-# In[32]:
+# In[15]:
 
-use_describe = ['max', 'min', '75%', 'mean', 'std']
+use_describe = ['max', 'min', 'median', 'mean', 'std', 'nunique']
 
 
-# In[33]:
+# In[16]:
 
 train_df['price_real'] = train_df['price_deduct'] + train_df['returnvalue']
 
 
-# In[15]:
+# In[17]:
 
 sample = extract_value_describe_feature('hotelid', 'price_deduct', train_df, sample, use_describe)
 
 sample = extract_value_describe_feature('hotelid', 'price_real', train_df, sample, ['max', 'mean', 'std'])
 
-sample = extract_value_describe_feature('hotelid', 'returnvalue', train_df, sample, ['max', 'mean', '75%'])
+sample = extract_value_describe_feature('hotelid', 'returnvalue', train_df, sample, ['max', 'mean', 'median'])
 
 
 # ### 房间的面积统计特征
 
 # ###  删掉为负的值
 
-# In[5]:
+# In[18]:
 
 train_df.loc[train_df.basic_minarea<0, 'basic_minarea'] = np.nan
 
 
-# In[6]:
+# In[19]:
 
-sample = extract_value_describe_feature('hotelid', 'basic_minarea', train_df, sample, ['max', 'mean', '75%'])
+sample = extract_value_describe_feature('hotelid', 'basic_minarea', train_df, sample, ['max', 'mean', 'median'])
 
-sample = extract_value_describe_feature('hotelid', 'basic_maxarea', train_df, sample, ['min', 'mean', '25%'])
+sample = extract_value_describe_feature('hotelid', 'basic_maxarea', train_df, sample, ['min', 'mean', 'median'])
 
 
-# In[7]:
+# In[20]:
 
 # get_corr(train_df, sample, 'hotelid').tail(25)
 
 
 # ## 过去物理房型和子房型的统计特征 
 
-# In[ ]:
+# In[21]:
 
 # get_corr(train_df, sample, 'hotelid')
 
 
-# In[8]:
+# In[22]:
 
 basic_cols = [
     'basic_week_ordernum_ratio', 'basic_recent3_ordernum_ratio',
@@ -160,29 +160,29 @@ basic_cols = [
 ]
 
 
-# In[ ]:
+# In[23]:
 
 stat_describe = ['min', 'mean']
 
 
-# In[9]:
+# In[24]:
 
 for col in basic_cols:
     sample = extract_value_describe_feature('hotelid', col, train_df, sample, stat_describe)
 
 
-# In[11]:
+# In[25]:
 
 room_cols = ['room_30days_ordnumratio', 'room_30days_realratio']
 
 
-# In[12]:
+# In[26]:
 
 for col in room_cols:
     sample = extract_value_describe_feature('hotelid', col, train_df, sample, ['max', 'min'])
 
 
-# In[15]:
+# In[27]:
 
 name_fmt = '{}_diff_{}'.format('hotelid', '{}')
 
@@ -191,33 +191,33 @@ hotel_minprice_diff_name = name_fmt.format('hotel_minprice_lastord')
 basic_minprice_diff_name = name_fmt.format('basic_minprice_lastord')
 
 
-# In[16]:
+# In[28]:
 
 train_df[price_diff_name] = train_df['price_deduct'] - train_df['price_last_lastord']
 train_df[hotel_minprice_diff_name] = train_df['price_deduct'] - train_df['hotel_minprice_lastord']
 train_df[basic_minprice_diff_name] = train_df['price_deduct'] - train_df['basic_minprice_lastord']
 
 
-# In[ ]:
+# In[29]:
 
 price_desr = ['mean', 'max', 'min']
 
 
-# In[17]:
+# In[30]:
 
 sample = extract_value_describe_feature('hotelid', price_diff_name, train_df, sample, price_desr)
 sample = extract_value_describe_feature('hotelid', hotel_minprice_diff_name, train_df, sample, price_desr)
 sample = extract_value_describe_feature('hotelid', basic_minprice_diff_name, train_df, sample, price_desr)
 
 
-# In[18]:
+# In[31]:
 
 # get_corr(train_df, sample, 'hotelid').tail(24)
 
 
 # ## 历史价格与现在差价统计特征
 
-# In[24]:
+# In[32]:
 
 hotel_lastord = train_df[[
     'uid', 'hotelid_lastord', 'hotelid', 'star_lastord',
@@ -225,7 +225,7 @@ hotel_lastord = train_df[[
 ]].drop_duplicates()
 
 
-# In[25]:
+# In[33]:
 
 if uid_shape != hotel_lastord.shape[0]:
     warn('uid_shape not equal [uid ,hotelid_lastord, hotelid]')
@@ -233,41 +233,41 @@ if uid_shape != hotel_lastord.shape[0]:
 
 # ## 历史购买时间间隔统计特征 
 
-# In[64]:
+# In[34]:
 
 span_name, t = '{}_span'.format('hotelid'), 'hotelid'
 
 
-# In[65]:
+# In[35]:
 
 # train_df[span_name] = (now_date - train_df.orderdate_lastord).dt.days
 
 # sample = extract_value_describe_feature(t, span_name, train_df, sample, ['max', 'min', 'mean'])
 
 
-# In[69]:
+# In[36]:
 
 # get_corr(train_df, sample, 'hotelid').tail(8)
 
 
 # ## 用户过去是否购买或者没有记录
 
-# In[26]:
+# In[37]:
 
 sample = extract_lastord_is_nan(hotel_lastord, sample, 'hotelid', 'hotelid_lastord')
 
 
-# In[27]:
+# In[38]:
 
 sample = extract_is_lastord(hotel_lastord, sample, 'hotelid', 'hotelid_lastord')
 
 
-# In[28]:
+# In[39]:
 
 # get_corr(train_df, sample, 'hotelid').tail()
 
 
-# In[29]:
+# In[40]:
 
 def extract_lastord_feature_max_min(t, hotel_lastord, sample):
     min_fmt = '{}_min'.format(t)
@@ -284,7 +284,7 @@ def extract_lastord_feature_max_min(t, hotel_lastord, sample):
     return sample
 
 
-# In[30]:
+# In[41]:
 
 # sample = extract_lastord_feature_max_min('star_lastord', hotel_lastord, sample)
 
@@ -295,17 +295,17 @@ def extract_lastord_feature_max_min(t, hotel_lastord, sample):
 # sample = extract_lastord_feature_max_min('orderdate_lastord_days', hotel_lastord, sample)
 
 
-# In[31]:
+# In[42]:
 
 # get_corr(train_df, sample, 'hotelid')
 
 
-# In[32]:
+# In[43]:
 
 # sample.info()
 
 
-# In[33]:
+# In[44]:
 
 sample.to_pickle(feature_path)
 

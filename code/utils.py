@@ -85,15 +85,17 @@ def extract_feature_count(t, f, train_df, sample):
     return sample
 
 def extract_value_describe_feature(t, f, train_df, sample, use_cols=None):
-    """ 数值型统计特征 """
+    """ 数值型统计特征 支持（'max', 'min', 'median', 'mean', 'std', 'nunique'）"""
     if train_df[f].dtype in (np.float16, np.float32):
         train_df[f] = train_df[f].astype(np.float64)
     if train_df[f].dtype in (np.int8, np.int16):
         train_df[f] = train_df[f].astype(np.int64)
-    df = train_df.groupby(t)[f].apply(pd.Series.describe).unstack()
-    df = df[use_cols] if use_cols else df
+    use_cols = use_cols if use_cols else ['max', 'min', 'median', 'mean', 'std', 'nunique']
     name_fmt = '{}__{}_{}'.format(t, f, '{}')
-    df.columns = [name_fmt.format(x).strip('%') for x in df.columns]
+    df = pd.DataFrame()
+    for i, c in enumerate(use_cols):
+        name = name_fmt.format(c)
+        df[name] = getattr(train_df.groupby(t)[f], c)()
     sample = sample.join(df, on=t)
     sample = press_date(sample, df.columns)
     train_df = press_date(train_df, [f])
