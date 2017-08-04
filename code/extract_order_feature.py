@@ -168,6 +168,7 @@ for i in range(2, 9):
     t = 'roomservice_%d' % i
     if i != 7:
         train_df['order_' + t + '_is_equal'] = (train_df[t] == train_df[t+'_lastord']).astype(np.int8)
+        train_df.loc[train_df.orderdate_lastord.isnull(), 'order_' + t + '_is_equal'] = np.nan
 
 
 # In[18]:
@@ -175,20 +176,17 @@ for i in range(2, 9):
 for i in range(2, 5):
     t = 'roomtag_%d' % i
     train_df['order_' + t + '_is_equal'] = (train_df[t] == train_df[t+'_lastord']).astype(np.int8)
+    train_df.loc[train_df.orderdate_lastord.isnull(), 'order_' + t + '_is_equal'] = np.nan
 
 
 # In[19]:
 
 for t in ['rank', 'star', 'basicroomid', 'roomid', 'hotelid']:
     train_df['order_' + t + '_is_equal'] = (train_df[t] == train_df[t+'_lastord']).astype(np.int8)
+    train_df.loc[train_df.orderdate_lastord.isnull(), 'order_' + t + '_is_equal'] = np.nan
 
 
 # In[20]:
-
-[x for x in train_df.columns if x.endswith('_is_equal')]
-
-
-# In[21]:
 
 train_df["city_num"]=train_df["user_ordernum"]/train_df["user_citynum"]
 train_df["area_price"]=train_df["user_avgprice"]/train_df["user_avgroomarea"]
@@ -216,8 +214,8 @@ train_df["order_basic_minprice_rt"]=train_df["basicroomid_price_deduct_min"]/tra
 
 
 train_df["price_tail1"]=train_df["price_deduct"]%10
-train_df.loc[(train_df.price_tail1==4)|(train_df.price_tail1==7), "price_tail1"]= 1
-train_df.loc[(train_df.price_tail1!=4)&(train_df.price_tail1!=7), "price_tail1"]= 0
+# train_df.loc[(train_df.price_tail1==4)|(train_df.price_tail1==7), "price_tail1"]= 1
+# train_df.loc[(train_df.price_tail1!=4)&(train_df.price_tail1!=7), "price_tail1"]= 0
 
 
 train_df["price_dx"] = train_df["price_deduct"] - train_df["price_last_lastord"] 
@@ -227,7 +225,7 @@ train_df["return_dx"] = train_df["returnvalue"] - train_df["return_lastord"]
 train_df["price_ori"] = train_df["price_deduct"] + train_df["returnvalue"]
 
 
-# In[22]:
+# In[21]:
 
 train_df["price_star"]=train_df["price_deduct"]/(train_df["star"])
 train_df["price_minarea"]=train_df["price_deduct"]/(train_df["basic_minarea"]-1)
@@ -241,7 +239,7 @@ train_df["price_h_w_rt"]=train_df["user_avgdealpriceholiday"]/train_df["user_avg
 train_df["price_ave_dif"] = train_df["price_deduct"] - train_df["user_avgdealprice"]
 
 
-# In[23]:
+# In[22]:
 
 train_df["order_hotel_last_price_min_rt"]=train_df["price_last_lastord"]/train_df["hotel_minprice_lastord"]
 train_df["order_basic_last_price_min_rt"]=train_df["price_last_lastord"]/train_df["basic_minprice_lastord"]
@@ -249,26 +247,33 @@ train_df["order_hotel_last_price_min_dif"]=train_df["price_last_lastord"]-train_
 train_df["order_basic_last_price_min_dif"]=train_df["price_last_lastord"]-train_df["basic_minprice_lastord"]
 
 
-# In[24]:
+# In[23]:
 
 train_df = press_date(train_df, ['order_hotel_last_price_min_rt', 'order_basic_last_price_min_rt', 'order_hotel_last_price_min_dif', 'order_basic_last_price_min_dif'])
 
 
-# In[25]:
+# In[24]:
 
 train_df['orderspan'] = (now_date - train_df['orderdate_lastord']).dt.days.astype(np.float16)
 
 
-# In[26]:
+# In[25]:
 
 train_df['orderhour'] = train_df['orderdate'].dt.hour.astype(np.int8)
 
 
+# ## 交叉特征
+
+# In[26]:
+
+train_df['rank_roomservice_8'] = (
+    train_df['roomservice_8'].astype(str) +
+    train_df['rank'].astype(str)).astype('category').cat.codes
+
+
 # In[27]:
 
-for c in train_df.columns:
-    if train_df[c].dtype == np.object:
-        print(c)
+press_columns.append('rank_roomservice_8')
 
 
 # In[28]:

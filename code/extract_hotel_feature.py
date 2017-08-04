@@ -16,12 +16,12 @@ import scipy as sp
 from utils import *
 
 
-# In[2]:
+# In[3]:
 
 # sys.argv[1] = 'test'
 
 
-# In[3]:
+# In[4]:
 
 dir_arg = sys.argv[1]
 if dir_arg == '-f':
@@ -30,7 +30,7 @@ else:
     file_dir = join('..', 'dataset',  dir_arg)
 
 
-# In[4]:
+# In[15]:
 
 train_df = pd.read_pickle(join(file_dir, 'base_feauture.pkl'))
 
@@ -43,7 +43,7 @@ uid_shape, hotelid_shape, basicroomid_shape, roomid_shape = print_shape(
     train_df, ['uid', 'hotelid', 'basicroomid', 'roomid'])
 
 
-# In[5]:
+# In[16]:
 
 feature_path = join(file_dir, 'hotel_feature.pkl')
 print(datetime.now(), 'begin', feature_path)
@@ -51,25 +51,40 @@ print(datetime.now(), 'begin', feature_path)
 
 # ## 添加基本特征
 
-# In[6]:
+# In[17]:
 
 sample = add_column(train_df, sample, 'hotelid', 'star')
 
 
 # ## 上下级关联统计特征
 
-# In[7]:
+# In[18]:
 
 for f in ['basicroomid', 'roomid']:
     print(datetime.now(), 'begin hotel', f, 'count')
     sample = extract_feature_count('hotelid', f, train_df, sample)
 
 
-# In[8]:
+# In[19]:
 
 for i in range(8):
     f = 'roomservice_%d' % (i+1)
     sample = extract_feature_count('hotelid', f, train_df, sample)
+
+
+# In[20]:
+
+sample.columns
+
+
+# In[1]:
+
+# get_corr(train_df, sample[['hotelid', 'hotelid__roomservice_8_count']], 'hotelid')
+
+
+# In[24]:
+
+pd.read_csv('models/02-0753-importance.txt')
 
 
 # In[9]:
@@ -162,13 +177,18 @@ basic_cols = [
 
 # In[23]:
 
-stat_describe = ['min', 'mean']
+stat_describe = ['min', 'mean', 'max']
 
 
 # In[24]:
 
 for col in basic_cols:
     sample = extract_value_describe_feature('hotelid', col, train_df, sample, stat_describe)
+
+
+# In[ ]:
+
+sample = extract_value_describe_feature('hotelid', 'basic_week_ordernum_ratio', train_df, sample, ['count'])
 
 
 # In[25]:
@@ -179,7 +199,12 @@ room_cols = ['room_30days_ordnumratio', 'room_30days_realratio']
 # In[26]:
 
 for col in room_cols:
-    sample = extract_value_describe_feature('hotelid', col, train_df, sample, ['max', 'min'])
+    sample = extract_value_describe_feature('hotelid', col, train_df, sample, ['max', 'min', 'mean'])
+
+
+# In[ ]:
+
+sample = extract_value_describe_feature('hotelid', 'room_30days_ordnumratio', train_df, sample, ['count'])
 
 
 # In[27]:

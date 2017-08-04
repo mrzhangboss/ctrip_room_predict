@@ -99,17 +99,17 @@ sample = extract_feature_count('basicroomid', 'roomid', train_df, sample)
 
 # ### 价格
 
-# In[12]:
+# In[13]:
 
 use_describe = ['max', 'min', 'median', 'mean', 'std', 'nunique']
 
 
-# In[13]:
+# In[14]:
 
 train_df['price_real'] = train_df['price_deduct'] + train_df['returnvalue']
 
 
-# In[14]:
+# In[15]:
 
 sample = extract_value_describe_feature('basicroomid', 'price_deduct', train_df, sample, use_describe)
 
@@ -120,7 +120,7 @@ sample = extract_value_describe_feature('basicroomid', 'returnvalue', train_df, 
 
 # ### 价格排序
 
-# In[28]:
+# In[16]:
 
 def df_min_orderid(df):
     add = pd.DataFrame(df.groupby(["orderid"]).price_deduct.min()).reset_index()
@@ -130,7 +130,7 @@ def df_min_orderid(df):
     return df
 
 
-# In[54]:
+# In[17]:
 
 def df_rank_mean(df):
     add = pd.DataFrame(df.groupby(["basicroomid"]).orderid_price_deduct_min_rank.mean()).reset_index()
@@ -140,7 +140,7 @@ def df_rank_mean(df):
     return df
 
 
-# In[61]:
+# In[18]:
 
 # train_df = df_min_orderid(df)
 
@@ -151,45 +151,59 @@ def df_rank_mean(df):
 # train_df = df_rank_mean(train_df)
 
 
-# In[23]:
+# In[19]:
 
 # sample['basicroomid__price_deduct_min_rank'] = sample.basicroomid__price_deduct_min.rank()
 
 
+# ## 子房型rank统计特征
+
+# In[20]:
+
+sample = extract_value_describe_feature('basicroomid', 'rank',
+                                        train_df, sample,
+                                        ['max', 'min', 'median', 'mean', 'std', 'nunique'])
+
+
+# In[21]:
+
+# get_corr(train_df, sample, 'basicroomid')
+
+
 # ## 子房型的统计特征 
 
-# In[16]:
+# In[22]:
 
 room_cols = ['room_30days_ordnumratio', 'room_30days_realratio']
 
 
-# In[17]:
+# In[23]:
 
 sample = extract_value_describe_feature(
     'basicroomid', 'room_30days_ordnumratio', train_df, sample,
     ['max', 'min', 'median', 'mean', 'std', 'nunique'])
 
 
-# In[18]:
+# In[24]:
 
 sample = extract_value_describe_feature('basicroomid', 'room_30days_realratio',
                                         train_df, sample,
-                                        ['max', 'min', 'median', 'mean', 'std', 'nunique'])
+                                        ['max', 'min', 'median', 'mean', 'std', 'nunique', 'count'])
 
 
-# In[19]:
+# In[25]:
 
 # get_corr(train_df, sample, 'basicroomid').tail(10)
 
 
 # ## 历史价格统计特征
 
-# In[20]:
+# In[26]:
 
 price_use_describe = ['max', 'std', 'mean', 'min']
 
 
-# In[21]:
+# In[27]:
 
 name_fmt = '{}_diff_{}'.format('basicroomid', '{}')
 
@@ -198,25 +212,25 @@ hotel_minprice_diff_name = name_fmt.format('hotel_minprice_lastord')
 basic_minprice_diff_name = name_fmt.format('basic_minprice_lastord')
 
 
-# In[22]:
+# In[28]:
 
 train_df[price_diff_name] = train_df['price_deduct'] - train_df['price_last_lastord']
 train_df[hotel_minprice_diff_name] = train_df['price_deduct'] - train_df['hotel_minprice_lastord']
 train_df[basic_minprice_diff_name] = train_df['price_deduct'] - train_df['basic_minprice_lastord']
 
 
-# In[23]:
+# In[29]:
 
 sample = extract_value_describe_feature('basicroomid', price_diff_name, train_df, sample, price_use_describe)
 
 
-# In[24]:
+# In[30]:
 
 sample = extract_value_describe_feature('basicroomid', hotel_minprice_diff_name, train_df, sample, price_use_describe)
 sample = extract_value_describe_feature('basicroomid', basic_minprice_diff_name, train_df, sample, price_use_describe)
 
 
-# In[25]:
+# In[31]:
 
 # get_corr(train_df, sample, 'basicroomid').tail(20)
 

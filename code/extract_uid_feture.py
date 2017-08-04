@@ -104,22 +104,73 @@ add_cols = ['hotel_minprice_lastord', 'basic_minprice_lastord', 'star_lastord'] 
 
 # In[13]:
 
-not_use = []
+# idf = pd.read_csv('models/03-0752-importance.txt')
+
+# series = idf.loc[idf['0']<0.001]['Unnamed: 0']
+
+# cols = series.str.extract('uid_+([\w_]+)')
+
+# list(cols.loc[cols.notnull()])
 
 
 # In[14]:
+
+not_use2 = [
+    'user_roomservice_3_123ratio_1month', 'user_roomservice_3_123ratio_1week',
+    'user_roomservice_3_123ratio_3month', 'user_avgroomnum',
+    'user_avgrecommendlevel', 'user_roomservice_4_3ratio_1week',
+    'user_roomservice_4_2ratio', 'user_ordnum_1week',
+    'uid_diff_basic_minprice_lastord_mean', 'user_roomservice_4_max_3month',
+    'hotelid_is_equal_count', 'user_avggoldstar',
+    'orderbehavior_5_ratio_3month', 'roomservice_8_is_equal_count',
+    'user_roomservice_4_1ratio_1week', 'user_roomservice_4_max',
+    'user_roomservice_8_max', 'user_cvprice', 'user_roomservice_5_1ratio',
+    'star_lastord', 'user_roomservice_7_0ratio_3month',
+    'orderbehavior_4_ratio_1week', 'user_roomservice_6_2ratio',
+    'user_roomservice_8_2ratio', 'user_roomservice_7_0ratio_1month',
+    'user_roomservice_8_1ratio', 'user_roomservice_7_0ratio',
+    'user_roomservice_5_0ratio', 'user_roomservice_4_max_1month',
+    'user_roomservice_4_max_1week', 'user_roomservice_4_2ratio_3month',
+    'user_roomservice_4_3ratio_1month', 'user_roomservice_6_0ratio',
+    'roomtag_3_is_equal_count', 'user_roomservice_3_123ratio',
+    'orderbehavior_3_ratio_1week', 'orderbehavior_7_ratio', 'user_avgstar',
+    'user_roomservice_4_4ratio', 'user_roomservice_7_1ratio',
+    'user_roomservice_7_max', 'user_roomservice_5_max',
+    'user_roomservice_3_max', 'user_roomservice_2_max',
+    'roomservice_3_is_equal_count', 'user_roomservice_3_0ratio',
+    'user_roomservice_2_0ratio', 'user_roomservice_4_1ratio_1month',
+    'user_roomservice_4_1ratio_3month', 'roomservice_2_is_equal_count',
+    'user_roomservice_4_0ratio_3month', 'roomservice_5_is_equal_count',
+    'user_roomservice_6_1ratio', 'user_roomservice_4_3ratio_3month',
+    'user_roomservice_4_4ratio_1week', 'user_roomservice_4_5ratio_1week',
+    'user_roomservice_7_1ratio_1week', 'user_avgroomarea',
+    'user_roomservice_4_0ratio', 'user_roomservice_8_345ratio',
+    'user_roomservice_4_3ratio', 'user_roomservice_2_1ratio',
+    'user_roomservice_4_1ratio', 'user_roomservice_4_5ratio',
+    'user_roomservice_4_0ratio_1week', 'roomtag_2_is_equal_count',
+    'roomid_is_equal_count', 'user_roomservice_4_4ratio_3month',
+    'user_roomservice_4_5ratio_3month', 'roomtag_4_is_equal_count',
+    'rank_is_equal_count', 'star_is_equal_count', 'orderbehavior_1_ratio',
+    'user_roomservice_4_0ratio_1month', 'orderbehavior_3_ratio_3month',
+    'orderbehavior_4_ratio_3month', 'user_roomservice_4_4ratio_1month',
+    'user_roomservice_4_5ratio_1month', 'orderbehavior_6_ratio'
+]
+not_use = []
+
+
+# In[15]:
 
 for col in add_cols:
     if col not in not_use:
         sample = add_column(train_df, sample, 'uid', col)
 
 
-# In[15]:
+# In[16]:
 
 # get_corr(train_df, sample, 'uid')
 
 
-# In[16]:
+# In[17]:
 
 # corr = _
 
@@ -132,7 +183,7 @@ for col in add_cols:
 
 # ## 基本交叉特征
 
-# In[17]:
+# In[18]:
 
 press_columns = ['uid_user_roomservice_8_2ratio', 'uid_user_roomservice_4_1ratio_3month',
    'uid_user_roomservice_4_1ratio_1month', 'uid_user_roomservice_4_1ratio_1week',
@@ -147,13 +198,13 @@ press_columns = ['uid_user_roomservice_8_2ratio', 'uid_user_roomservice_4_1ratio
                 ]
 
 
-# In[18]:
+# In[19]:
 
 # sample["uid_user_roomservice_4_32_rt"]=sample["uid_user_roomservice_4_3ratio"]/sample["uid_user_roomservice_4_2ratio"]
 # sample["uid_user_roomservice_4_43_rt"]=sample["uid_user_roomservice_4_4ratio"]/sample["uid_user_roomservice_4_3ratio"]
 
 
-# In[19]:
+# In[20]:
 
 # sample["user_roomservice_8_345ratio"]=sample["user_roomservice_5_345ratio"]
 # del sample["user_roomservice_5_345ratio"]
@@ -201,14 +252,14 @@ sample["uid_user_roomservice_4_max_3month"] = np.argmax(
     axis=1)
 
 
-# In[20]:
+# In[21]:
 
 sample = press_date(sample, press_columns)
 
 
 # ## 历史价格统计特征 
 
-# In[21]:
+# In[22]:
 
 name_fmt = '{}_diff_{}'.format('uid', '{}')
 
@@ -217,63 +268,63 @@ hotel_minprice_diff_name = name_fmt.format('hotel_minprice_lastord')
 basic_minprice_diff_name = name_fmt.format('basic_minprice_lastord')
 
 
-# In[22]:
+# In[23]:
 
 train_df[price_diff_name] = train_df['price_deduct'] - train_df['price_last_lastord']
 train_df[hotel_minprice_diff_name] = train_df['price_deduct'] - train_df['hotel_minprice_lastord']
 train_df[basic_minprice_diff_name] = train_df['price_deduct'] - train_df['basic_minprice_lastord']
 
 
-# In[23]:
+# In[24]:
 
 price_describe = ['mean', 'median']
 
 
-# In[24]:
+# In[25]:
 
 sample = extract_value_describe_feature('uid', price_diff_name, train_df, sample, price_describe)
 sample = extract_value_describe_feature('uid', hotel_minprice_diff_name, train_df, sample, price_describe)
 sample = extract_value_describe_feature('uid', basic_minprice_diff_name, train_df, sample, price_describe)
 
 
-# In[25]:
+# In[26]:
 
 # get_corr(train_df, sample, 'uid')
 
 
 # ## 修改特征
 
-# In[26]:
+# In[27]:
 
 for i in [1,2,3,4,5,6,7,8,9,10,11]:
         sample["order_ordertype_%s_num"%i] = sample["uid_ordertype_%s_ratio"%i] * sample["uid_user_ordernum"]
         del sample["uid_ordertype_%s_ratio"%i]
 
 
-# In[27]:
+# In[28]:
 
 for c in ["orderbehavior_1_ratio","orderbehavior_2_ratio","orderbehavior_6_ratio","orderbehavior_7_ratio"]:
         sample["uid_" + c]= sample["uid_" + c] * sample["uid_user_ordernum"]
 
 
-# In[28]:
+# In[29]:
 
 [x for x in sample.columns if x.startswith('uid_orderbehavior')]
 
 
-# In[29]:
+# In[30]:
 
 for c in ["orderbehavior_3_ratio_1week","orderbehavior_4_ratio_1week","orderbehavior_5_ratio_1week"]:
        sample["uid_" + c]= sample["uid_" + c] * sample["uid_user_ordnum_1week"]
 
 
-# In[30]:
+# In[31]:
 
 for c in ["orderbehavior_3_ratio_3month","orderbehavior_4_ratio_3month","orderbehavior_5_ratio_3month"]:
         sample["uid_" + c]= sample["uid_" + c] * sample["uid_user_ordnum_3month"]
 
 
-# In[31]:
+# In[32]:
 
 sample = press_date(sample, ['uid_' + x for x in [
     "orderbehavior_1_ratio", "orderbehavior_2_ratio", "orderbehavior_6_ratio",
@@ -286,29 +337,44 @@ sample = press_date(sample, ['uid_' + x for x in [
 
 # ### 历史订单间隔统计特征 
 
-# In[32]:
+# In[33]:
 
 span_name, t = '{}_ordspan'.format('uid'), 'uid'
 
 
-# In[33]:
+# In[34]:
 
 # train_df[span_name] = (now_date - train_df.orderdate_lastord).dt.days
 
 # sample = extract_value_describe_feature(t, span_name, train_df, sample, ['max', 'min', 'mean'])
 
 
-# In[34]:
+# In[35]:
 
 # get_corr(train_df, sample, 'uid')
 
 
-# In[35]:
+# In[36]:
 
 train_df.shape
 
 
-# In[36]:
+# In[1]:
+
+# for c in not_use2:
+#     c1 = 'uid__' + c
+#     c2 = 'uid_' + c
+#     drop_c = None
+#     if  c1 in sample.columns:
+#         drop_c = c1
+#     elif c2 in sample.columns:
+#         drop_c = c2
+#     if drop_c:
+#         print('drop ', drop_c)
+#         sample.drop(drop_c, axis=1, inplace=True)
+
+
+# In[38]:
 
 sample.to_pickle(feature_path)
 

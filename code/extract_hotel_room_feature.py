@@ -24,7 +24,7 @@ else:
     file_dir = join('..', 'dataset',  dir_arg)
 
 
-# In[4]:
+# In[3]:
 
 train_df = pd.read_pickle(join(file_dir, 'base_feauture.pkl'))
 
@@ -37,7 +37,7 @@ uid_shape, hotelid_shape, basicroomid_shape, roomid_shape = print_shape(
     train_df, ['uid', 'hotelid', 'basicroomid', 'roomid'])
 
 
-# In[5]:
+# In[4]:
 
 feature_path = join(file_dir, 'hotel_room_feature.pkl')
 print(datetime.now(), 'begin', feature_path)
@@ -45,51 +45,62 @@ print(datetime.now(), 'begin', feature_path)
 
 # ## 添加基本特征 
 
-# In[29]:
+# In[5]:
 
 sample = add_column(train_df, sample, 'hotel_roomid', 'room_30days_ordnumratio')
 
 
-# In[30]:
+# In[6]:
 
 sample = add_column(train_df, sample, 'hotel_roomid', 'room_30days_realratio')
 
 
-# In[13]:
+# In[7]:
 
 train_df['price_real'] = train_df['price_deduct'] + train_df['returnvalue']
 
 
-# In[14]:
+# In[34]:
 
 add_cols = ['basic_minarea', 'basic_maxarea', 'rank', 'roomservice_1']
+# add_cols = []
 
 
-# In[21]:
+# In[9]:
 
 for col in add_cols:
     sample = add_column(train_df, sample, 'hotel_roomid', col)
 
 
-# In[16]:
+# In[17]:
+
+get_corr(train_df, sample, 'hotel_roomid')
+
+
+# In[13]:
 
 serivice_cols = ['roomservice_%d' % x for x in range(1, 9)]
 
 
-# In[17]:
+# In[14]:
 
 tag_cols = ['roomtag_%d' % x for x in range(1, 5)]
 
 
-# In[18]:
+# In[15]:
 
 count_cols = serivice_cols + tag_cols
 
 
-# In[19]:
+# In[16]:
 
 for col in count_cols:
     sample = extract_feature_count('hotel_roomid', col, train_df, sample)
+
+
+# In[33]:
+
+# train_df.loc[(train_df.orderid==94304)&(train_df.basicroomid==25979)]
 
 
 # ## 历史价格统计特征
