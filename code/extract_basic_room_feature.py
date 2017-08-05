@@ -1,9 +1,10 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[20]:
 
 import sys
+import gc
 from datetime import datetime
 from os.path import join
 from warnings import warn
@@ -15,16 +16,23 @@ import scipy as sp
 from utils import *
 
 
-# In[2]:
+# In[13]:
+
+# sys.argv[1] = 'test'
+
+
+# In[14]:
 
 dir_arg = sys.argv[1]
 if dir_arg == '-f':
+    is_test = False
     file_dir = join('..', 'dataset', 'train')
 else:
+    is_test = True
     file_dir = join('..', 'dataset',  dir_arg)
 
 
-# In[3]:
+# In[56]:
 
 train_df = pd.read_pickle(join(file_dir, 'base_feauture.pkl'))
 
@@ -37,7 +45,7 @@ uid_shape, hotelid_shape, basicroomid_shape, roomid_shape = print_shape(
     train_df, ['uid', 'hotelid', 'basicroomid', 'roomid'])
 
 
-# In[4]:
+# In[16]:
 
 feature_path = join(file_dir, 'basic_room_feature.pkl')
 print(datetime.now(), 'begin', feature_path)
@@ -45,19 +53,19 @@ print(datetime.now(), 'begin', feature_path)
 
 # ## 基本分类计数特征
 
-# In[5]:
+# In[6]:
 
 train_df.loc[train_df.basic_minarea<0, 'basic_minarea'] = np.nan
 train_df.loc[train_df.basic_maxarea<0, 'basic_maxarea'] = np.nan
 
 
-# In[6]:
+# In[7]:
 
 sample = add_column(train_df, sample, 'basicroomid', 'basic_minarea')
 sample = add_column(train_df, sample, 'basicroomid', 'basic_maxarea')
 
 
-# In[7]:
+# In[8]:
 
 basic_cols = [
     'basic_week_ordernum_ratio', 'basic_recent3_ordernum_ratio',
@@ -172,24 +180,37 @@ sample = extract_value_describe_feature('basicroomid', 'rank',
 
 # ## 物理房型统计特征 
 
-# In[11]:
+# In[19]:
 
-tdf = train_df[[
+basic_stat_cols = [
     'basicroomid', 'orderdate', 'basic_week_ordernum_ratio',
     'basic_recent3_ordernum_ratio', 'basic_comment_ratio',
     'basic_30days_ordnumratio', 'basic_30days_realratio'
-]]
+]
+
+
+# In[59]:
+
+if is_test:
+    history_df = pd.read_pickle('../dataset/train.pkl')
+    history_df = history_df.loc[history_df.basicroomid.isin(train_df.basicroomid.unique()), basic_stat_cols]
+    print('get test_df ', history_df.shape)
+    tdf = train_df[basic_stat_cols]
+    tdf = pd.concat([tdf, history_df])
+    del history_df
+    gc.collect()
+else:
+    tdf = train_df[basic_stat_cols]
+
+
+# In[61]:
 
 tdf.orderdate = tdf.orderdate.dt.weekday
 
-ntdf = tdf[[
-    'basicroomid', 'orderdate', 'basic_week_ordernum_ratio',
-    'basic_recent3_ordernum_ratio', 'basic_comment_ratio',
-    'basic_30days_ordnumratio', 'basic_30days_realratio'
-]].groupby(['basicroomid', 'orderdate']).mean().reset_index()
+ntdf = tdf[basic_stat_cols].groupby(['basicroomid', 'orderdate']).mean().reset_index()
 
 
-# In[15]:
+# In[62]:
 
 stat_cols = [
     'basic_week_ordernum_ratio', 'basic_recent3_ordernum_ratio',
@@ -197,19 +218,37 @@ stat_cols = [
 ]
 
 
-# In[16]:
+# In[64]:
 
 use_describe = ['max', 'mean', 'mad', 'var', 'median', 'sum']
 
 
-# In[18]:
+# In[51]:
+
+# sample = extract_value_describe_feature('basicroomid', 'basic_week_ordernum_ratio_var', ntdf, sample,
+#                                         ['max', 'mean', 'median', 'sum'])
+
+
+# In[ ]:
+
+['basic_week_ordernum_ratio_mad', 'basicroomid__basic_week_ordernum_ratio_var',
+'basicroomid__basic_recent3_ordernum_ratio_mad', 
+'basicroomid__basic_recent3_ordernum_ratio_var',
+'basicroomid__basic_comment_ratio_var',
+'basicroomid__basic_30days_ordnumratio_mad',
+'basicroomid__basic_30days_ordnumratio_var',
+'basicroomid__basic_30days_realratio_var']
+
+
+# In[65]:
 
 for c in stat_cols:
+    print('extract',  c, use_describe)
     sample = extract_value_describe_feature(
         'basicroomid', c, ntdf, sample, use_describe)
 
 
-# In[20]:
+# In[67]:
 
 # get_corr(train_df, sample, 'basicroomid')
 
