@@ -213,31 +213,20 @@ ntdf = tdf[basic_stat_cols].groupby(['basicroomid', 'orderdate']).mean().reset_i
 # In[62]:
 
 stat_cols = [
-    'basic_week_ordernum_ratio', 'basic_recent3_ordernum_ratio',
+    'basic_recent3_ordernum_ratio', 'basic_week_ordernum_ratio',
     'basic_comment_ratio', 'basic_30days_ordnumratio', 'basic_30days_realratio'
 ]
 
 
 # In[64]:
 
-use_describe = ['max', 'mean', 'mad', 'var', 'median', 'sum']
+use_describe = ['sum', 'nunique']
 
 
 # In[51]:
 
 # sample = extract_value_describe_feature('basicroomid', 'basic_week_ordernum_ratio_var', ntdf, sample,
 #                                         ['max', 'mean', 'median', 'sum'])
-
-
-# In[ ]:
-
-['basic_week_ordernum_ratio_mad', 'basicroomid__basic_week_ordernum_ratio_var',
-'basicroomid__basic_recent3_ordernum_ratio_mad', 
-'basicroomid__basic_recent3_ordernum_ratio_var',
-'basicroomid__basic_comment_ratio_var',
-'basicroomid__basic_30days_ordnumratio_mad',
-'basicroomid__basic_30days_ordnumratio_var',
-'basicroomid__basic_30days_realratio_var']
 
 
 # In[65]:
@@ -260,18 +249,23 @@ for c in stat_cols:
 room_cols = ['room_30days_ordnumratio', 'room_30days_realratio']
 
 
+# In[ ]:
+
+use_describe = ['nunique', 'sum']
+
+
 # In[25]:
 
 sample = extract_value_describe_feature(
     'basicroomid', 'room_30days_ordnumratio', train_df, sample,
-    ['max', 'min', 'median', 'mean', 'std', 'nunique', 'var', 'mad', 'sum'])
+    use_describe)
 
 
 # In[26]:
 
 sample = extract_value_describe_feature('basicroomid', 'room_30days_realratio',
                                         train_df, sample,
-                                        ['max', 'min', 'median', 'mean', 'std', 'nunique', 'count',  'var', 'mad', 'sum'])
+                                        ['max', 'min', 'median', 'mean', 'nunique', 'count', 'sum'])
 
 
 # In[27]:

@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 import sys
 import gc
@@ -17,7 +17,7 @@ import scipy as sp
 from utils import *
 
 
-# In[2]:
+# In[3]:
 
 dir_arg = sys.argv[1]
 if dir_arg == '-f':
@@ -26,7 +26,7 @@ else:
     file_dir = join('..', 'dataset',  dir_arg)
 
 
-# In[27]:
+# In[4]:
 
 train_df = pd.read_pickle(join(file_dir, 'base_feauture.pkl'))
 
@@ -37,13 +37,33 @@ uid_shape, hotelid_shape, basicroomid_shape, roomid_shape = print_shape(
     train_df, ['uid', 'hotelid', 'basicroomid', 'roomid'])
 
 
-# In[28]:
+# In[8]:
+
+idf = pd.read_csv('models/06-1736-importance.txt', index_col=[0])
+
+nidf = idf.loc[idf.index.str.extract('^(orderid)').notnull()]
+
+nidf
+
+nidf.loc[nidf['0']==0]
+
+idf.loc[[x for x in nidf.index if x.startswith('basicroomid__basic_30days_realratio')]]
+
+nidf
+
+
+# In[9]:
+
+idf
+
+
+# In[39]:
 
 feature_path = join(file_dir, 'order_feature.pkl')
 print(datetime.now(), 'begin', feature_path)
 
 
-# In[29]:
+# In[40]:
 
 hotel_path = join(file_dir, 'hotel_feature.pkl')
 basic_path = join(file_dir, 'basic_room_feature.pkl')
@@ -52,12 +72,12 @@ hotel_room_path = join(file_dir, 'hotel_room_feature.pkl')
 user_path = join(file_dir, 'user_feature.pkl')
 
 
-# In[30]:
+# In[41]:
 
 not_rename = []
 
 
-# In[31]:
+# In[42]:
 
 def join_df(t, p, order_df):
     df = pd.read_pickle(p).set_index(t)
@@ -66,7 +86,7 @@ def join_df(t, p, order_df):
     return order_df
 
 
-# In[32]:
+# In[43]:
 
 train_df = join_df('hotelid', hotel_path, train_df)
 train_df = join_df('basicroomid', basic_path, train_df)
@@ -77,7 +97,7 @@ train_df = join_df('uid', user_path, train_df)
 gc.collect()
 
 
-# In[13]:
+# In[44]:
 
 # 每个basicid价格的中位数
 def df_median(df):
@@ -140,11 +160,6 @@ train_df = df_roomrank_mean(train_df)
 train_df["orderid_price_deduct_min_rank"] = train_df['orderid_price_deduct_min'].groupby(train_df['orderid']).rank()
 
 
-# In[49]:
-
-train_df = df_rank_mean(train_df)
-
-
 # In[50]:
 
 # train_df = press_date(train_df, ['order_basicroomid_price_rank'])
@@ -171,7 +186,7 @@ for i in range(2, 5):
 
 # In[53]:
 
-for t in ['rank', 'star', 'basicroomid', 'roomid', 'hotelid']:
+for t in ['rank', 'star', 'basicroomid', 'hotelid']:
     train_df[t + '_is_equal'] = (train_df[t] == train_df[t+'_lastord']).astype(np.int8)
     train_df.loc[train_df.orderdate_lastord.isnull(), t + '_is_equal'] = np.nan
 
@@ -183,7 +198,7 @@ train_df['order_weekday'] = train_df.orderdate.dt.weekday
 train_df['order_weekday_lastord'] = train_df.orderdate_lastord.dt.weekday
 
 
-# In[55]:
+# In[33]:
 
 train_df["city_num"]=train_df["user_ordernum"]/train_df["user_citynum"]
 train_df["area_price"]=train_df["user_avgprice"]/train_df["user_avgroomarea"]
@@ -293,7 +308,7 @@ train_df=pd.merge(train_df,t,on=['orderid','basicroomid'],how='left')
 # In[42]:
 
 train_df['basicroomid_roomid_rank1']=train_df.groupby(['orderid','basicroomid'])['rank'].rank(method='max')
-train_df['basicroomid_roomid_rank1_ismin']=(train_df['basicroomid_roomid_price_rank']==1).astype(np.int8)
+# train_df['basicroomid_roomid_rank1_ismin']=(train_df['basicroomid_roomid_price_rank']==1).astype(np.int8)
 train_df['basicroomid_roomid_rank1_rate']=train_df.basicroomid_roomid_rank1.astype('float')/train_df.basicroomid_roomid_cnt
 
 
@@ -433,11 +448,6 @@ for c in ['basic_minarea_std', 'basic_maxarea_std']:
 # train_df = press_date(train_df, ['basic_minarea_std', 'basic_maxarea_std'])
 
 
-# In[90]:
-
-np.any(np.isinf(train_df.basic_minarea_std))
-
-
 # In[94]:
 
 train_df['price_deduct_std_rate']=train_df.price_deduct_std/train_df.basicroomid_price_deduct_median
@@ -504,6 +514,43 @@ train_df['orderspan'] = (now_date - train_df['orderdate_lastord']).dt.days.astyp
 train_df['orderhour'] = train_df['orderdate'].dt.hour.astype(np.int8)
 
 
+# In[81]:
+
+def get_main_types(train):
+    train['idxmax_rs2'] = train[['user_roomservice_2_0ratio','user_roomservice_2_1ratio']].idxmax(axis=1)
+    train['idxmax_rs3'] = train[['user_roomservice_3_0ratio','user_roomservice_3_123ratio']].idxmax(axis=1)
+    train['idxmax_rs4'] = train[['user_roomservice_4_0ratio','user_roomservice_4_1ratio','user_roomservice_4_2ratio','user_roomservice_4_3ratio',
+                                 'user_roomservice_4_4ratio','user_roomservice_4_5ratio']].idxmax(axis=1)
+    train['idxmax_rs5'] = train[['user_roomservice_5_0ratio','user_roomservice_5_1ratio']].idxmax(axis=1)
+    train['idxmax_rs6'] = train[['user_roomservice_6_0ratio','user_roomservice_6_1ratio','user_roomservice_6_2ratio']].idxmax(axis=1)
+    train['idxmax_rs7'] = train[['user_roomservice_7_0ratio','user_roomservice_7_1ratio']].idxmax(axis=1)
+    train['idxmax_rs8'] = train[['user_roomservice_8_1ratio','user_roomservice_8_2ratio','user_roomservice_8_345ratio']].idxmax(axis=1)
+
+    train['maintype_rs2'] = train['idxmax_rs2'].apply(lambda x: int(x[19:20]) if pd.notnull(x) else x)
+    train['maintype_rs3'] = train['idxmax_rs3'].apply(lambda x: int(x[19:20]) if pd.notnull(x) else x)
+    train['maintype_rs4'] = train['idxmax_rs4'].apply(lambda x: int(x[19:20]) if pd.notnull(x) else x)
+    train['maintype_rs5'] = train['idxmax_rs5'].apply(lambda x: int(x[19:20]) if pd.notnull(x) else x)
+    train['maintype_rs6'] = train['idxmax_rs6'].apply(lambda x: int(x[19:20]) if pd.notnull(x) else x)
+    train['maintype_rs7'] = train['idxmax_rs7'].apply(lambda x: int(x[19:20]) if pd.notnull(x) else x)
+    train['maintype_rs8'] = train['idxmax_rs8'].apply(lambda x: int(x[19:20]) if pd.notnull(x) else x)
+
+    train['ismaintype_rs2'] = (train['roomservice_2']-train['maintype_rs2']).map({0:1,-1:0,1:0})
+    train['roomservice_3'] = train['roomservice_3'].map({0:0,1:1,2:1,3:1})
+    train['ismaintype_rs3'] = (train['roomservice_3']-train['maintype_rs3']).map({0:1,-1:0,1:0})
+    train['ismaintype_rs4'] = (train['roomservice_4']-train['maintype_rs4']).map({0:1,-1:0,1:0,-2:0,2:0,-3:0,3:0,-4:0,4:0,-5:0,5:0})
+    train['ismaintype_rs5'] = (train['roomservice_5']-train['maintype_rs5']).map({0:1,-1:0,1:0})
+    train['ismaintype_rs6'] = (train['roomservice_6']-train['maintype_rs6']).map({0:1,-1:0,1:0,-2:0,2:0})
+    train['ismaintype_rs7'] = (train['roomservice_7']-train['maintype_rs7']).map({0:1,-1:0,1:0})
+    train['roomservice_8'] = train['roomservice_8'].map({1:1,2:2,3:3,4:3,5:3})
+    train['ismaintype_rs8'] = (train['roomservice_8']-train['maintype_rs8']).map({0:1,-1:0,1:0,-2:0,2:0})
+    train.drop(['idxmax_rs%d' % x for x in range(2, 9)] + ['maintype_rs%d' % x for x in range(2, 9)], axis=1, inplace=True)
+
+
+# In[80]:
+
+get_main_types(train=train_df)
+
+
 # ## 交叉特征
 
 # In[76]:
@@ -513,9 +560,26 @@ train_df['rank_roomservice_8'] = (
     train_df['rank'].astype(str)).astype('category').cat.codes
 
 
+# In[ ]:
+
+not_use_in_sample_cols = ['orderdate', 'orderdate_lastord',
+                          # 'user_roomservice_6_1ratio',
+#                          'user_roomservice_5_1ratio', 'user_roomservice_2_1ratio',
+#                          'user_roomservice_8_345ratio', 'user_roomservice_4_5ratio_1week',
+#                          'user_avgroomarea', 'user_roomservice_4_0ratio',
+#                          'user_roomservice_4_0ratio_3month', 'min_returnvalue', 'min_basic_week_ordernum_ratio',
+#                          'min_basic_recent3_ordernum_ratio', 'user_roomservice_4_5ratio_3month',
+#                          'user_roomservice_4_5ratio_3month', 'user_roomservice_4_4ratio_3month',
+#                          'min_basic_comment_ratio', 'min_basic_30days_ordnumratio', 'basic_week_ordernum_ratio',
+#                          'basic_recent3_ordernum_ratio', 'basic_comment_ratio',
+                         # order last id 
+                          'hotelid_lastord', 'roomid_lastord', 'basicroomid_lastord',
+                         ]
+
+
 # In[77]:
 
-use_cols = [x for x in train_df.columns if x not in ['orderdate', 'orderdate_lastord']]
+use_cols = [x for x in train_df.columns if x not in not_use_in_sample_cols]
 
 
 # In[95]:
@@ -538,7 +602,7 @@ not_rename  += [
 
 # In[98]:
 
-sample.rename_axis({x:'order_'+ x for x in use_cols if x not in not_rename}, inplace=True, axis='columns')
+sample.rename_axis({x:'orderid_'+ x for x in use_cols if x not in not_rename}, inplace=True, axis='columns')
 
 
 # In[99]:

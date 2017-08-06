@@ -76,7 +76,7 @@ print(datetime.now(), 'begin', feature_path)
 
 # In[10]:
 
-serivice_cols = ['roomservice_%d' % x for x in range(1, 9)]
+serivice_cols = ['roomservice_%d' % x for x in range(1, 9) if x not in [1, 2, 3, 4, 7]]
 
 
 # In[11]:
