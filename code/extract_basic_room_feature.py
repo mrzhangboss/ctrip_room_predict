@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[20]:
+# In[1]:
 
 import sys
 import gc
@@ -16,12 +16,12 @@ import scipy as sp
 from utils import *
 
 
-# In[13]:
+# In[2]:
 
 # sys.argv[1] = 'test'
 
 
-# In[14]:
+# In[3]:
 
 dir_arg = sys.argv[1]
 if dir_arg == '-f':
@@ -32,7 +32,7 @@ else:
     file_dir = join('..', 'dataset',  dir_arg)
 
 
-# In[56]:
+# In[4]:
 
 train_df = pd.read_pickle(join(file_dir, 'base_feauture.pkl'))
 
@@ -45,7 +45,7 @@ uid_shape, hotelid_shape, basicroomid_shape, roomid_shape = print_shape(
     train_df, ['uid', 'hotelid', 'basicroomid', 'roomid'])
 
 
-# In[16]:
+# In[5]:
 
 feature_path = join(file_dir, 'basic_room_feature.pkl')
 print(datetime.now(), 'begin', feature_path)
