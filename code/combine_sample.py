@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[22]:
+# In[1]:
 
 import os
 import sys
@@ -19,7 +19,7 @@ import scipy as sp
 from utils import *
 
 
-# In[23]:
+# In[2]:
 
 dir_arg = sys.argv[1]
 if dir_arg == '-f':
@@ -28,10 +28,13 @@ else:
     file_dir = join('..', 'dataset',  dir_arg)
 
 
-# In[24]:
+# In[3]:
 
 feature_path = join(file_dir, 'all_feature.pkl')
 print(datetime.now(), 'begin combine', feature_path)
+
+
+# In[4]:
 
 order_path = join(file_dir, 'order_feature.pkl')
 
@@ -46,13 +49,18 @@ hotel_room_path = join(file_dir, 'hotel_room_feature.pkl')
 user_path = join(file_dir, 'user_feature.pkl')
 
 
-# In[25]:
+# In[5]:
+
+# order_path = join(file_dir, 'select_all_feature.pkl')
+
+
+# In[6]:
 
 if exists(abspath(feature_path)):
     remove(abspath(feature_path))
 
 
-# In[26]:
+# In[7]:
 
 print(check_output(['ln', '-s', abspath(order_path), abspath(feature_path)]))
 

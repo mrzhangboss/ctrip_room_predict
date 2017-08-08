@@ -69,14 +69,14 @@ print(datetime.now(), 'begin', feature_path)
 
 # ## 上下级关联统计特征
 
-# In[7]:
+# In[24]:
 
 for f in ['basicroomid', 'roomid']:
     print(datetime.now(), 'begin hotel', f, 'count')
     sample = extract_feature_count('hotelid', f, train_df, sample)
 
 
-# In[8]:
+# In[25]:
 
 for i in range(8):
     f = 'roomservice_%d' % (i+1)
