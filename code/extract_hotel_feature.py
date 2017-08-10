@@ -56,27 +56,16 @@ print(datetime.now(), 'begin', feature_path)
 # sample = add_column(train_df, sample, 'hotelid', 'star')
 
 
-# In[7]:
-
-# idf = pd.read_csv('models/06-1217-importance.txt', index_col=[0])
-
-# nidf = idf.loc[idf.index.str.extract('^(hotelid)').notnull()]
-
-# nidf
-
-# nidf.loc[nidf['0']==0]
-
-
 # ## 上下级关联统计特征
 
-# In[24]:
+# In[7]:
 
 for f in ['basicroomid', 'roomid']:
     print(datetime.now(), 'begin hotel', f, 'count')
     sample = extract_feature_count('hotelid', f, train_df, sample)
 
 
-# In[25]:
+# In[8]:
 
 for i in range(8):
     f = 'roomservice_%d' % (i+1)
@@ -175,9 +164,9 @@ train_df.loc[train_df.basic_minarea<0, 'basic_minarea'] = np.nan
 
 # In[33]:
 
-#     'basic_week_ordernum_ratio', 'basic_30days_ordnumratio',   'basic_comment_ratio',  not use
 basic_cols = [
-    'basic_30days_realratio'
+    'basic_week_ordernum_ratio', 'basic_recent3_ordernum_ratio',
+    'basic_comment_ratio', 'basic_30days_ordnumratio', 'basic_30days_realratio'
 ]
 
 
@@ -197,14 +186,9 @@ for col in basic_cols:
 sample = extract_value_describe_feature('hotelid', 'basic_week_ordernum_ratio', train_df, sample, ['count'])
 
 
-# In[ ]:
-
-sample = extract_value_describe_feature('hotelid', 'basic_recent3_ordernum_ratio', train_df, sample, ['max'])
-
-
 # In[37]:
 
-room_cols = ['room_30days_realratio'] # 'room_30days_ordnumratio', 
+room_cols = ['room_30days_ordnumratio', 'room_30days_realratio']
 
 
 # In[38]:

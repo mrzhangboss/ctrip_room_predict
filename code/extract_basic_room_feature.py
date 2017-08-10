@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[20]:
 
 import sys
 import gc
@@ -16,12 +16,12 @@ import scipy as sp
 from utils import *
 
 
-# In[2]:
+# In[13]:
 
 # sys.argv[1] = 'test'
 
 
-# In[3]:
+# In[14]:
 
 dir_arg = sys.argv[1]
 if dir_arg == '-f':
@@ -32,7 +32,7 @@ else:
     file_dir = join('..', 'dataset',  dir_arg)
 
 
-# In[4]:
+# In[56]:
 
 train_df = pd.read_pickle(join(file_dir, 'base_feauture.pkl'))
 
@@ -45,7 +45,7 @@ uid_shape, hotelid_shape, basicroomid_shape, roomid_shape = print_shape(
     train_df, ['uid', 'hotelid', 'basicroomid', 'roomid'])
 
 
-# In[5]:
+# In[16]:
 
 feature_path = join(file_dir, 'basic_room_feature.pkl')
 print(datetime.now(), 'begin', feature_path)
@@ -213,20 +213,31 @@ ntdf = tdf[basic_stat_cols].groupby(['basicroomid', 'orderdate']).mean().reset_i
 # In[62]:
 
 stat_cols = [
-    'basic_recent3_ordernum_ratio', 'basic_week_ordernum_ratio',
+    'basic_week_ordernum_ratio', 'basic_recent3_ordernum_ratio',
     'basic_comment_ratio', 'basic_30days_ordnumratio', 'basic_30days_realratio'
 ]
 
 
 # In[64]:
 
-use_describe = ['sum', 'nunique']
+use_describe = ['max', 'mean', 'mad', 'var', 'median', 'sum']
 
 
 # In[51]:
 
 # sample = extract_value_describe_feature('basicroomid', 'basic_week_ordernum_ratio_var', ntdf, sample,
 #                                         ['max', 'mean', 'median', 'sum'])
+
+
+# In[ ]:
+
+['basic_week_ordernum_ratio_mad', 'basicroomid__basic_week_ordernum_ratio_var',
+'basicroomid__basic_recent3_ordernum_ratio_mad', 
+'basicroomid__basic_recent3_ordernum_ratio_var',
+'basicroomid__basic_comment_ratio_var',
+'basicroomid__basic_30days_ordnumratio_mad',
+'basicroomid__basic_30days_ordnumratio_var',
+'basicroomid__basic_30days_realratio_var']
 
 
 # In[65]:
@@ -249,23 +260,18 @@ for c in stat_cols:
 room_cols = ['room_30days_ordnumratio', 'room_30days_realratio']
 
 
-# In[ ]:
-
-use_describe = ['nunique', 'sum']
-
-
 # In[25]:
 
 sample = extract_value_describe_feature(
     'basicroomid', 'room_30days_ordnumratio', train_df, sample,
-    use_describe)
+    ['max', 'min', 'median', 'mean', 'std', 'nunique', 'var', 'mad', 'sum'])
 
 
 # In[26]:
 
 sample = extract_value_describe_feature('basicroomid', 'room_30days_realratio',
                                         train_df, sample,
-                                        ['max', 'min', 'median', 'mean', 'nunique', 'count', 'sum'])
+                                        ['max', 'min', 'median', 'mean', 'std', 'nunique', 'count',  'var', 'mad', 'sum'])
 
 
 # In[27]:

@@ -92,7 +92,7 @@ train_df = join_df('uid', user_path, train_df)
 gc.collect()
 
 
-# In[10]:
+# In[23]:
 
 # 每个basicid价格的中位数
 def df_median(df):
@@ -133,36 +133,36 @@ def df_roomrank_mean(df):
 
 # #### 排序特征
 
-# In[11]:
+# In[22]:
 
 train_df=df_median(train_df)
 train_df=df_min(train_df)
 train_df=df_min_orderid(train_df)
 
 
-# In[12]:
+# In[24]:
 
 train_df['basicroomid_price_rank'] = train_df['price_deduct'].groupby([train_df['orderid'], train_df['basicroomid']]).rank()
 
 
-# In[13]:
+# In[25]:
 
 train_df = df_roomrank_mean(train_df)
 
 
-# In[14]:
+# In[26]:
 
 train_df["orderid_price_deduct_min_rank"] = train_df['orderid_price_deduct_min'].groupby(train_df['orderid']).rank()
 
 
-# In[15]:
+# In[27]:
 
 # train_df = press_date(train_df, ['order_basicroomid_price_rank'])
 
 
 # ### 上次订购的价格和当时最低价的比
 
-# In[16]:
+# In[28]:
 
 for i in range(2, 9):
     t = 'roomservice_%d' % i
@@ -171,7 +171,7 @@ for i in range(2, 9):
         train_df.loc[train_df.orderdate_lastord.isnull(), t + '_is_equal'] = np.nan
 
 
-# In[17]:
+# In[29]:
 
 for i in range(2, 5):
     t = 'roomtag_%d' % i
@@ -179,26 +179,26 @@ for i in range(2, 5):
     train_df.loc[train_df.orderdate_lastord.isnull(), t + '_is_equal'] = np.nan
 
 
-# In[18]:
+# In[30]:
 
 for t in ['rank', 'star', 'basicroomid', 'hotelid']:
     train_df[t + '_is_equal'] = (train_df[t] == train_df[t+'_lastord']).astype(np.int8)
     train_df.loc[train_df.orderdate_lastord.isnull(), t + '_is_equal'] = np.nan
 
 
-# In[19]:
+# In[31]:
 
 train_df['order_weekday'] = train_df.orderdate.dt.weekday
 
 train_df['order_weekday_lastord'] = train_df.orderdate_lastord.dt.weekday
 
 
-# In[20]:
+# In[32]:
 
 train_df["this_is_basicroomid_price_deduct_min"] = (train_df["basicroomid_price_deduct_min"] == train_df.price_deduct).astype(np.int8)
 
 
-# In[21]:
+# In[33]:
 
 train_df["city_num"]=train_df["user_ordernum"]/train_df["user_citynum"]
 train_df["area_price"]=train_df["user_avgprice"]/train_df["user_avgroomarea"]
@@ -237,7 +237,7 @@ train_df["price_ori"] = train_df["price_deduct"] + train_df["returnvalue"]
 
 # ## 8/7号添加
 
-# In[31]:
+# In[36]:
 
 train_df['roomtag_3_1'] = train_df.roomtag_3 * train_df.roomtag_1
 
@@ -246,7 +246,7 @@ train_df['roomtag_3_1'] = train_df.roomtag_3 * train_df.roomtag_1
 
 # ### orderid特征统计
 
-# In[22]:
+# In[37]:
 
 group = train_df[['orderid','price_deduct','returnvalue','basic_week_ordernum_ratio','basic_recent3_ordernum_ratio','basic_comment_ratio',
                'basic_30days_ordnumratio','basic_30days_realratio']].groupby('orderid')
@@ -269,7 +269,7 @@ train_df = pd.merge(train_df,group2_min,how='left',on=['orderid','basicroomid'])
 train_df = pd.merge(train_df,group2_max,how='left',on=['orderid','basicroomid'])
 
 
-# In[23]:
+# In[38]:
 
 train_df['user_price_deduct_user_maxprice_1week']=train_df.price_deduct-train_df.user_maxprice_1week
 train_df['user_price_deduct_user_minprice_1week']=train_df.price_deduct-train_df.user_minprice_1week
@@ -286,25 +286,25 @@ train_df['price_diff_user_med_1month'] = train_df['price_deduct']-train_df['user
 train_df['price_diff_user_med_3month'] = train_df['price_deduct']-train_df['user_medprice_3month']
 
 
-# In[24]:
+# In[39]:
 
 train_df.user_avgadvanceddate=train_df.user_avgadvanceddate.apply(round).astype('int')#convert user_avgadvanceddata to int,so we can get real data(orderdate+adv_data)
 train_df['is_holiday']=(((train_df.order_weekday+train_df.user_avgadvanceddate)%7==0)|((train_df.order_weekday+train_df.user_avgadvanceddate)%7==6)).astype(np.int8)
 
 
-# In[25]:
+# In[40]:
 
 train_df['basicroomid_roomid_price_rank']=train_df.groupby(['orderid','basicroomid'])['returnvalue'].rank(method='max')
 train_df['basicroomid_roomid_price_ismin']=(train_df['basicroomid_roomid_price_rank']==1).astype(np.int8)
 
 
-# In[26]:
+# In[41]:
 
 train_df['orderid_roomid_price_rank']=train_df.groupby(['orderid'])['returnvalue'].rank(method='max')
 train_df['orderid_roomid_price_ismin']=(train_df['orderid_roomid_price_rank']==1).astype(np.int8)
 
 
-# In[27]:
+# In[42]:
 
 t=train_df[['orderid','basicroomid','roomid']].drop_duplicates()[['orderid','basicroomid']]     ##how many roomid in each (orderid,basicroomid)
 t['basicroomid_roomid_cnt']=1
@@ -312,25 +312,25 @@ t=t.groupby(['orderid','basicroomid']).agg('sum').reset_index()
 train_df=pd.merge(train_df,t,on=['orderid','basicroomid'],how='left')
 
 
-# In[28]:
+# In[43]:
 
 train_df['basicroomid_roomid_rank1']=train_df.groupby(['orderid','basicroomid'])['rank'].rank(method='max')
 # train_df['basicroomid_roomid_rank1_ismin']=(train_df['basicroomid_roomid_price_rank']==1).astype(np.int8)
 train_df['basicroomid_roomid_rank1_rate']=train_df.basicroomid_roomid_rank1.astype('float')/train_df.basicroomid_roomid_cnt
 
 
-# In[34]:
+# In[44]:
 
 train_df['basicroomid_hotel_basic_count_rate'] = train_df.basicroomid_roomid_rank1.astype('float')/train_df.hotelid__basicroomid_count
 
 
-# In[56]:
+# In[45]:
 
 train_df['true_value_basic_rank']=train_df.groupby(['orderid','basicroomid'])['price_ori'].rank(method='max')
 train_df['price_deduct_basic_rank']=train_df.groupby(['orderid','basicroomid'])['price_deduct'].rank(method='max')
 
 
-# In[57]:
+# In[46]:
 
 train_df['true_value_rank']=train_df.groupby(['orderid'])['price_ori'].rank(method='max')
 train_df['price_deduct_rank']=train_df.groupby(['orderid'])['price_deduct'].rank(method='max')
@@ -338,7 +338,7 @@ train_df['basic_minarea_rank']=train_df.groupby(['orderid'])['basic_minarea'].ra
 train_df['basic_maxarea_rank']=train_df.groupby(['orderid'])['basic_maxarea'].rank(method='max')
 
 
-# In[58]:
+# In[47]:
 
 train_df['this_last_roomservice_2_gap']=train_df.roomservice_2-train_df.roomservice_2_lastord
 train_df['this_last_roomservice_3_gap']=train_df.roomservice_3-train_df.roomservice_3_lastord
@@ -350,7 +350,7 @@ train_df['this_last_roomtag_4_gap']=train_df.roomtag_4-train_df.roomtag_4_lastor
 # train_df['this_last_roomtag_5_gap']=train_df.roomtag_5-train_df.roomtag_5_lastord
 
 
-# In[59]:
+# In[48]:
 
 train_df['user_maxprice_hotel_minprice_lastord_gap']=train_df.user_maxprice-train_df.hotel_minprice_lastord
 train_df['user_maxprice_basic_minprice_lastord_gap']=train_df.user_maxprice-train_df.basic_minprice_lastord
@@ -360,7 +360,7 @@ train_df['user_stdprice_hotel_minprice_lastord_gap']=train_df.user_stdprice-trai
 train_df['user_stdprice_basic_minprice_lastord_gap']=train_df.user_stdprice-train_df.basic_minprice_lastord
 
 
-# In[60]:
+# In[49]:
 
 train_df['user_price_deduct_user_avgdealpriceholiday']=train_df.price_deduct-train_df.user_avgdealpriceholiday
 train_df['user_price_deduct_user_avgdealpriceworkday']=train_df.price_deduct-train_df.user_avgdealpriceworkday
@@ -370,14 +370,14 @@ train_df['user_price_deduct_user_avgprice_1month']=train_df.price_deduct-train_d
 train_df['user_price_deduct_user_avgprice_3month']=train_df.price_deduct-train_df.user_avgprice_3month
 
 
-# In[61]:
+# In[50]:
 
 train_df['this_price_last_avgprice_gap']=train_df.price_deduct-train_df.user_avgprice
 train_df['this_price_last_maxprice_gap']=train_df.price_deduct-train_df.user_maxprice
 train_df['this_price_last_minprice_gap']=train_df.price_deduct-train_df.user_minprice
 
 
-# In[62]:
+# In[51]:
 
 train_df["price_star"]=train_df["price_deduct"]/(train_df["star"])
 train_df["price_minarea"]=train_df["price_deduct"]/(train_df["basic_minarea"]-1)
@@ -391,7 +391,7 @@ train_df["price_h_w_rt"]=train_df["user_avgdealpriceholiday"]/train_df["user_avg
 train_df["price_ave_dif"] = train_df["price_deduct"] - train_df["user_avgdealprice"]
 
 
-# In[63]:
+# In[52]:
 
 train_df["order_hotel_last_price_min_rt"]=train_df["price_last_lastord"]/train_df["hotel_minprice_lastord"]
 train_df["order_basic_last_price_min_rt"]=train_df["price_last_lastord"]/train_df["basic_minprice_lastord"]
@@ -399,14 +399,14 @@ train_df["order_hotel_last_price_min_dif"]=train_df["price_last_lastord"]-train_
 train_df["order_basic_last_price_min_dif"]=train_df["price_last_lastord"]-train_df["basic_minprice_lastord"]
 
 
-# In[64]:
+# In[53]:
 
 train_df = press_date(train_df, ['order_hotel_last_price_min_rt', 'order_basic_last_price_min_rt', 'order_hotel_last_price_min_dif', 'order_basic_last_price_min_dif'])
 
 
 # #### 价格特征综合
 
-# In[66]:
+# In[54]:
 
 tt=train_df.groupby('orderid')['price_deduct'].agg('median').reset_index()
 tt.rename(columns={'price_deduct':'price_deduct_median'},inplace=True)
@@ -449,18 +449,18 @@ tt.rename(columns={'basic_maxarea':'basic_maxarea_std'},inplace=True)
 train_df=pd.merge(train_df,tt,on='orderid',how='left')
 
 
-# In[84]:
+# In[55]:
 
 for c in ['basic_minarea_std', 'basic_maxarea_std']:
     train_df[c] = train_df[c].astype(np.float).replace([np.inf, -np.inf], np.nan)
 
 
-# In[85]:
+# In[56]:
 
 # train_df = press_date(train_df, ['basic_minarea_std', 'basic_maxarea_std'])
 
 
-# In[94]:
+# In[57]:
 
 train_df['price_deduct_std_rate']=train_df.price_deduct_std/train_df.basicroomid_price_deduct_median
 train_df['returnvalue_std_rate']=train_df.returnvalue_std/train_df.returnvalue_median
@@ -471,11 +471,58 @@ train_df['basic_maxarea_std_rate']=train_df.basic_maxarea_std/train_df.basic_max
 
 # #### 价格交叉特征 
 
+# ## 8.9 日添加
+
+# In[77]:
+
+train_df['basicroomid_roomid_rank1_rate_rank'] = train_df.basicroomid_roomid_rank1_rate.groupby(train_df['orderid']).rank()
+
+
+# In[103]:
+
+# train_df['true_value_rank_small_than_10'] = pd.cut(train_df['true_value_rank'], 10).astype('category').cat.codes
+
+
+# In[84]:
+
+# train_df['true_value_rank_small_than_10'] = (train_df['true_value_rank'] < 10).astype(np.int8)
+
+
+# In[105]:
+
+# train_df[['basicroomid_roomid_rank1_rate_rank', 'basicroomid_roomid_rank1_rate', 'true_value_rank_small_than_10', 'true_value_rank', 'orderlabel']].corr()
+
+
+# In[112]:
+
+# train_df['price_dif_cut'] = (train_df.price_dif < -2.6).astype(np.int8)
+
+
+# In[115]:
+
+# train_df['price_dif_cut'] = pd.cut(train_df.price_dif, 3).astype('category').cat.codes
+
+
+# In[117]:
+
+# train_df[['orderlabel', 'price_dif', 'price_dif_hotel', 'price_dif_cut']].corr()
+
+
+# In[116]:
+
+# train_df.basicroomid_roomid_rank1_rate.diff()
+
+
+# In[118]:
+
+# train_df.groupby(['orderlabel']).basicroomid_roomid_rank1_rate.count()
+
+
 # ### 用户价格交叉特征 
 
 # ### 用户特征 
 
-# In[72]:
+# In[ ]:
 
 train_df["user_roomservice_8_2ratio"]=1-train_df["user_roomservice_8_345ratio"]-train_df["user_roomservice_8_1ratio"]
 train_df["user_roomservice_4_1ratio_3month"] = 1 - train_df["user_roomservice_4_0ratio_3month"] - train_df["user_roomservice_4_2ratio_3month"] - train_df["user_roomservice_4_3ratio_3month"] - train_df["user_roomservice_4_4ratio_3month"] - train_df["user_roomservice_4_5ratio_3month"]
